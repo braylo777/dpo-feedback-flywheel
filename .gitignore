@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.walkthroughs/
+.pytest_cache/
+# model weights and training checkpoints are never committed
+checkpoints/
+adapters/
+*.safetensors
+*.bin
+*.pt
+# local runtime DB of the chat app
+data/*.db
+data/schedule_state.json

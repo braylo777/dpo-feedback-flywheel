@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feedback Flywheel Chat</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 16px;background:#fafafa;color:#111}
+.turn{background:#fff;border:1px solid #ddd;border-radius:8px;padding:12px;margin:12px 0}
+.q{font-weight:600}.votes button{margin-right:8px;font-size:1.1rem;cursor:pointer}
+.voted{outline:2px solid #2a7}form{display:flex;gap:8px}input{flex:1;padding:8px}
+</style></head><body>
+<h1>Feedback Flywheel Chat</h1>
+<p>Ask anything. Rate each reply. Ratings become DPO preference pairs.</p>
+<form id="f"><input id="p" placeholder="Ask a question" autocomplete="off"><button>Send</button></form>
+<div id="log"></div>
+<script>
+const log=document.getElementById('log');
+document.getElementById('f').onsubmit=async e=>{e.preventDefault();const p=document.getElementById('p');
+ const prompt=p.value.trim();if(!prompt)return;p.value='';
+ const r=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({prompt})});
+ const d=await r.json();const div=document.createElement('div');div.className='turn';
+ const q=document.createElement('div');q.className='q';q.textContent=prompt;
+ const a=document.createElement('div');a.textContent=d.reply;
+ const v=document.createElement('div');v.className='votes';
+ for(const [label,val] of [['👍',1],['👎',-1]]){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-label',val>0?'thumbs up':'thumbs down');
+  b.onclick=async()=>{await fetch('/api/feedback',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({turn_id:d.turn_id,vote:val})});
+  v.querySelectorAll('button').forEach(x=>x.classList.remove('voted'));b.classList.add('voted');};v.appendChild(b);}
+ div.append(q,a,v);log.prepend(div);};
+</script></body></html>
